@@ -3,7 +3,7 @@
  Plugin Name: Giswell SEO tool
  Plugin URI:  http://giswell.fi
  Description: Lightweight Search Engine Optimization tool. Add metadata to pages without bloat
- Version:     0.1
+ Version:     0.1.0
  Author:      Tero Karhapää
  Author URI:  http://giswell.fi
  License:     GPL2
@@ -28,17 +28,20 @@ along with Giswell SEO tool. If not, see https://www.gnu.org/licenses/gpl-2.0.ht
 defined( 'ABSPATH' ) or die( 'No direct access, please!' );
 
 const META_DESC = 'giswell_seo_meta_desc';
+const META_KEYWORDS = 'giswell_seo_meta_keywords';
 
 // Activation hook function
 function giswell_seo_install() {
-	add_option(META_DESC, 'Oletusteksti, muuta');
+	add_option(META_DESC, 'Default text');
+	add_option(META_KEYWORDS, 'Default, Base');
 	flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, 'giswell_seo_install' );
 
 // Deactivation hook function
 function giswell_seo_deactivation() {
-	delete_option( META_DESC );
+// 	delete_option( META_DESC );
+// 	delete_option(META_KEYWORDS);
 	flush_rewrite_rules();
 }
 register_deactivation_hook( __FILE__, 'giswell_seo_deactivation' );
@@ -46,7 +49,9 @@ register_deactivation_hook( __FILE__, 'giswell_seo_deactivation' );
 // Update meta
 function giswell_update_meta() {
 	$metadesc = get_option(META_DESC);
+	$metakeys = get_option(META_KEYWORDS);
 	echo '<meta name="description" content="' . $metadesc . '" />' . "\n";
+	echo '<meta name="keywords" content="' . $metakeys . '" />' . "\n";
 }
 add_action('wp_head', 'giswell_update_meta');
 
@@ -94,21 +99,37 @@ function giswell_seo_settings_init() {
 			);
 
 	add_settings_field(
-			'giswell_seo_meta_desc',
+			META_DESC,
 			'Meta Description',
 			'giswell_seo_meta_desc_callback',
 			'giswell-seo-menu',
 			'giswell_seo_section'
 			);
 	
-	register_setting( 'giswell_seo_section', 'giswell_seo_meta_desc' );
+	register_setting( 'giswell_seo_section', META_DESC );
+	
+	add_settings_field(
+			META_KEYWORDS,
+			'Meta Keywords',
+			'giswell_seo_meta_keys_callback',
+			'giswell-seo-menu',
+			'giswell_seo_section'
+			);
+	
+	register_setting( 'giswell_seo_section', META_KEYWORDS );
 }
 
 add_action( 'admin_init', 'giswell_seo_settings_init' );
 
 function giswell_seo_meta_desc_callback() {
 	?>
-	<textarea maxlength="160" name="giswell_seo_meta_desc" id="giswell_seo_meta_desc" rows="6" style="width: 50%;"><?php echo get_option(META_DESC); ?></textarea>
+	<textarea maxlength="160" name="<?php echo META_DESC; ?>" id="<?php echo META_DESC; ?>" rows="6" style="width: 50%;"><?php echo get_option(META_DESC); ?></textarea>
+	<?php
+}
+
+function giswell_seo_meta_keys_callback() {
+	?>
+	<textarea maxlength="160" name="<?php echo META_KEYWORDS; ?>" id="<?php echo META_KEYWORDS; ?>" rows="6" style="width: 50%;"><?php echo get_option(META_KEYWORDS); ?></textarea>
 	<?php
 }
 
