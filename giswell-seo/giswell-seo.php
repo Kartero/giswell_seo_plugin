@@ -3,7 +3,7 @@
  Plugin Name: Giswell SEO tool
  Plugin URI:  http://giswell.fi
  Description: Lightweight Search Engine Optimization tool. Add metadata to pages without bloat
- Version:     0.1.0
+ Version:     0.1.1
  Author:      Tero Karhapää
  Author URI:  http://giswell.fi
  License:     GPL2
@@ -29,11 +29,13 @@ defined( 'ABSPATH' ) or die( 'No direct access, please!' );
 
 const META_DESC = 'giswell_seo_meta_desc';
 const META_KEYWORDS = 'giswell_seo_meta_keywords';
+const GOOGLE_ANALYTICS = 'giswell_google_analytics';
 
 // Activation hook function
 function giswell_seo_install() {
 	add_option(META_DESC, 'Default text');
 	add_option(META_KEYWORDS, 'Default, Base');
+	add_option(GOOGLE_ANALYTICS, '<script></script>');
 	flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, 'giswell_seo_install' );
@@ -42,6 +44,7 @@ register_activation_hook( __FILE__, 'giswell_seo_install' );
 function giswell_seo_deactivation() {
 // 	delete_option( META_DESC );
 // 	delete_option(META_KEYWORDS);
+// 	delete_option(GOOGLE_ANALYTICS);
 	flush_rewrite_rules();
 }
 register_deactivation_hook( __FILE__, 'giswell_seo_deactivation' );
@@ -117,6 +120,16 @@ function giswell_seo_settings_init() {
 			);
 	
 	register_setting( 'giswell_seo_section', META_KEYWORDS );
+	
+	add_settings_field(
+			GOOGLE_ANALYTICS,
+			'Google analytics tracking code -- echo get_option("giswell_google_analytics");',
+			'giswell_seo_ga_callback',
+			'giswell-seo-menu',
+			'giswell_seo_section'
+			);
+	
+	register_setting( 'giswell_seo_section', GOOGLE_ANALYTICS );
 }
 
 add_action( 'admin_init', 'giswell_seo_settings_init' );
@@ -133,6 +146,11 @@ function giswell_seo_meta_keys_callback() {
 	<?php
 }
 
+function giswell_seo_ga_callback() {
+	?>
+	<textarea name="<?php echo GOOGLE_ANALYTICS; ?>" id="<?php echo GOOGLE_ANALYTICS; ?>" rows="10" style="width: 50%;"><?php echo get_option(GOOGLE_ANALYTICS); ?></textarea>
+	<?php
+}
 
 
 
